@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def sign(v):
     return 2*(v>=0)-1
 
-def plot_error_in_time(Xtrain, ytrain, Xtest, ytest, theta, feature_inds, thresholds):
+def plot_error_in_time(Xtrain, ytrain, Xtest, ytest, theta, feature_inds, thresholds, ax):
     number_of_thresholds = len(thresholds)
 
     train_errors = np.zeros((number_of_thresholds,1))
@@ -24,13 +24,14 @@ def plot_error_in_time(Xtrain, ytrain, Xtest, ytest, theta, feature_inds, thresh
         train_predictions += (sign(Xtrain.loc[:,feature_inds[i]].to_numpy() - thresholds[i]) * theta[i]).reshape((mtrain,1))
         test_predictions += (sign(Xtest.loc[:,feature_inds[i]].to_numpy() - thresholds[i]) * theta[i]).reshape((mtest,1))
 
-
         train_errors[i] = sum([el[0]<=0 for el in ytrain.to_numpy().reshape((mtrain,1)) * train_predictions]) / mtrain
         test_errors[i] = sum([el[0] <= 0 for el in ytest.to_numpy().reshape((mtest,1)) * test_predictions]) / mtest
 
-    plt.plot(range(len(train_errors)),train_errors, label = "Train error rate")
-    plt.plot(range(len(test_errors)),test_errors, label = "Test error rate")
-    plt.xlabel('Iterations')
-    plt.ylabel('Error rate')
-    plt.legend()
-    plt.show()
+    print("Min(TRAIN_Error_rate) = {}".format(min(train_errors)))
+    print("Min(TEST_Error_rate) = {}".format(min(test_errors)))
+    ax.plot(range(len(train_errors)),train_errors, label = "Train error rate")
+    ax.plot(range(len(test_errors)),test_errors, label = "Test error rate")
+    ax.set_xlabel('Iterations')
+    ax.set_ylabel('Error rate')
+    ax.legend()
+    return ax, min(train_errors),train_errors, min(test_errors), test_errors
