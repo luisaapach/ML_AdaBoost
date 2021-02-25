@@ -13,7 +13,7 @@ def stump_booster(x_set, y_set, T):
     p_dist = np.ones((mm, 1))
     p_dist = p_dist / np.sum(p_dist)
 
-    theta, feature_inds, thresholds = [], [], []
+    theta, feature_inds, thresholds, gamma = [], [], [], []
 
     for i in range(1, T + 1):
         ind, thresh = find_best_threshold(x_set, y_set, p_dist)
@@ -24,6 +24,7 @@ def stump_booster(x_set, y_set, T):
         theta += [0.5 * math.log(w_plus / w_minus)]
         feature_inds += [ind]
         thresholds += [thresh]
+        gamma += [0.5 - min([w_plus,w_minus])]
 
         p_dist = np.dot(sign(x_set.loc[:, feature_inds] - np.tile(np.array(thresholds).T, (mm, 1))), np.array(theta).T.reshape(len(theta), 1))
         p_dist = y_set.to_numpy().reshape(mm, 1) * (-1) * p_dist
@@ -31,4 +32,4 @@ def stump_booster(x_set, y_set, T):
         print('Iter %d, empirical risk = %1.4f, empirical error = %1.4f' % (i, np.sum(p_dist), sum([e >= 1 for e in p_dist.reshape(1, mm)[0]])))
         p_dist = p_dist / np.sum(p_dist)
 
-    return theta, feature_inds, thresholds
+    return theta, feature_inds, thresholds, gamma
